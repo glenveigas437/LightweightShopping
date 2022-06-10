@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+	<form method="POST" action="{{ url_for('products') }}">
+      <div class="form-row align-items-center">
+        <div class="col-auto my-1">
+
+          <label class="mr-sm-2" for="inlineFormCustomSelect">Sort By</label>
+          <select class="custom-select mr-sm-2" name="inlineFormCustomSelect">
+                {% for drop in category %}
+                    <option>{{drop}}</option>
+                {% endfor %}
+          </select>
+        </div>
+        <div class="col-auto my-1">
+          <p><br><br><button type="submit" class="btn btn-outline-primary">Submit</button></p>
+        </div>
+      </div>
+    </form>
+    <div>
+			<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Product Name</th>
+					<th>Price</th>
+					<th>Description</th>
+					<th>Tags</th>
+					<th>Quantity</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				{% for product in productsCursor %}
+
+				<tr>
+					<td>{{product.name}}</td>
+					<td>{{product.price}}</td>
+					<td>{{product.description}}</td>
+					<td>{% for products in product.tags %}
+							{{products}},
+						{% endfor %}</td>
+					<form method="POST" action="{{ url_for('addToCart') }}">
+						<td>
+								<div class="col-xs-2">
+									<input type="hidden" name="productID" value={{product._id}}>
+	    					</div>
+						</td>
+						<td>
+								<button type="submit" class="btn btn-success btn-sm" role="button">Add To Cart</a>
+						</td>
+					</form>
+
+				</tr>
+
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div>
+		{{pagination.links}}
+	</div>
+{% endblock content %}

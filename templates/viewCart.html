@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+		<div>
+			<h2>Cart for {{session['user']['email']}}</h2>
+    <div>
+			<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Sr. No.</th>
+					<th>Product Name</th>
+					<th>Price</th>
+					<th>Quantity</th>
+					<th>Total</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				{% for key, product in session['cart'].items() %}
+				<tr>
+					<td>{{loop.index}}</td>
+					<td>{{product.Name}}</td>
+					<td>{{product.Price}}</td>
+					<form action="{{url_for('updateCart', products=key)}}" method="POST">
+						<td><input type="number" name="quantity" value="{{product.Quantity}}"></td>
+						<td>{{product.Total}}</td>
+						<td><button type="submit" class="btn btn-sm btn-outline-info">Update</button></td>
+					</form>
+					<td><a href="{{url_for('deleteItemFromCart', products=key)}}" class="btn btn-sm btn-outline-danger">Delete</a></td>
+
+				</tr>
+
+				{% endfor %}
+			</tbody>
+
+		</table>
+		<table class="table table-sm">
+			<tr>
+				<td>
+					<h3>Cart Value</h3>
+				</td>
+				<td></td>
+				<td><h3>{{session['cartTotal']}}</h3></td>
+			</tr>
+		</table>
+		<table class="table table-sm">
+			<tr>
+				<td>
+					<a href="{{url_for('addOrder')}}" class="btn btn-outline-success">Proceed To Order</a>
+				</td>
+				<td><a href="{{url_for('clearCart')}}" class="btn btn-sm btn-outline-danger float-right" >Clear Cart</a></td>
+			</tr>
+		</table>
+	</div>
+{% endblock content %}

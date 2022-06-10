@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+	<h2>Orders of {{session['user']['email']}}</h2>
+    <div>
+			<table class="table table-hover">
+			<tbody>
+				{% for key, product in orders.items() %}
+				<tr>
+					<td>Bill No: <h3>{{product._id}}</h3></td>
+
+					<td>{% for prodKey, prodValue in product.bill.items() %}
+						<tr>
+							<td>{{prodValue.Name}}</td>
+							<td>Price: {{prodValue.Price}}</td>
+							<td>Quantity: {{prodValue.Quantity}}</td>
+							<td>Total: {{prodValue.Total}}</td>
+						</tr>
+					</td>
+					{% endfor %}
+					<td>Grand Total <h4>{{product.total}}</h4></td>
+				<br>	
+				</tr>
+				{% endfor %}
+			</tbody>
+{% endblock content %}
