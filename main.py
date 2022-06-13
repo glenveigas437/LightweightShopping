@@ -51,9 +51,8 @@ class AllSearch(Searcher):
 
 class CategoricSearch(Searcher):
     def sortBy(self, param, cursor, page, perPage, offset):
-        print(param)
-        newCursor = cursor.find({"name": {'$regex' : '.*' + param[0] + '.*'}})
-        totalCount = param[1][param[0]]
+        newCursor = cursor.find({"tags": {'$in' : [param[0]]}})
+        totalCount = param[1]
         final=[]
         for new in newCursor:
             final.append(new)
@@ -68,15 +67,13 @@ class Finder(ABC):
     def findProducts(self):
         pass
 
-class ProductFinder(Finder):
+class CategoryFinder(Finder):
     def findProducts(self, items):
         categoryList={}
         for item in items:
-            category=item['name'].split(' ')
-            category=category[-1]
-            if category not in categoryList:
-                categoryList[category]=0
-            categoryList[category]+=1
+            categoryItems=item['tags']
+            for category in categoryItems:
+                categoryList[category]=categoryList.get(category, 0)+1
         return categoryList
 
 
@@ -86,9 +83,10 @@ def returnCategoryList():
     currentItemsNew=[]
     for current in currentItems:
         currentItemsNew.append(current)
+
     totalCount = items.count_documents({})
 
-    categories = ProductFinder().findProducts(currentItemsNew)
+    categories = CategoryFinder().findProducts(currentItemsNew)
     return categories, currentItemsNew
 
 categories, currentItemsNew =returnCategoryList()
@@ -136,7 +134,7 @@ def products():
     global categories, currentItemsNew
     page, perPage, offset = get_page_args(page_parameter="page", per_page_parameter="perPage")
 
-    dropdown = [key for key, value in categories.items()]
+    dropdown = [(key, value) for key, value in categories.items()]
     if request.method == 'POST':
         selected = request.form['inlineFormCustomSelect']   
         return redirect(url_for('viewProducts', selected=selected))
@@ -148,14 +146,15 @@ def products():
 @app.route("/viewproducts/selected", methods=['GET', 'POST'])
 @login_required
 def viewProducts():
-    global categories
     selected = request.args.get('selected')
     
+    selected = selected.split(' ')
+    print(selected)
     items = client['items']
     page, perPage, offset = get_page_args(page_parameter="page", per_page_parameter="perPage")
 
-    paginateProducts, pagination = CategoricSearch().sortBy((selected,categories), items, page, perPage, offset)
-    return render_template('viewProducts.html', title='Products', productsCursor=paginateProducts, page=page, per_page=perPage, pagination=pagination)
+    paginateProducts, pagination = CategoricSearch().sortBy((selected[0],int(selected[1])), items, page, perPage, offset)
+    return render_template('viewProducts.html', title='Products', productsCursor=paginateProducts, page=page, per_page=perPage, pagination=pagination, selected=selected)
 
 
 #Cart
